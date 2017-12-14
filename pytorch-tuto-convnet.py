@@ -35,15 +35,28 @@ class Net(nn.Module):
         return num_features
 
 net = Net()
-print(">> Definition of the neural network")
-print(net)
 
-params = list(net.parameters())
 print(">> Learnable parameters of the NN")
+params = list(net.parameters())
 print(len(params))
 print(params[0].size())
 
+print(">> Testing with a random input")
 input = Variable(torch.randn(1, 1, 32, 32))
 out = net(input)
-print(">> Testing with a random input")
 print(out)
+
+target = Variable(torch.arange(1, 11))  # a dummy target, for example
+criterion = nn.MSELoss()
+loss = criterion(out, target)
+print(">> Loss :\n", loss)
+
+print(">> ")
+net.zero_grad()
+print("bias before", net.conv1.bias.grad)
+loss.backward()
+print("bias after", net.conv1.bias.grad)
+
+learning_rate = 0.01
+for f in net.parameters():
+    f.data.sub_(f.grad.data * learning_rate)
