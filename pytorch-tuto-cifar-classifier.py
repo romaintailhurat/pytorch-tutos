@@ -12,6 +12,9 @@ import torch.optim as optim
 import matplotlib.pyplot as plt
 import numpy as np
 
+# -- Constants
+EPOCHS = 2
+
 # -- Handling input data
 transform = transforms.Compose(
     [transforms.ToTensor(),
@@ -75,3 +78,20 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
 # -- Training the network
+for epoch in range(EPOCHS):
+    running_loss = 0.0
+    for i, data in enumerate(trainloader, 0):
+        inputs, labels = data
+        inputs, labels = Variable(inputs), Variable(labels)
+        optimizer.zero_grad() # zeroing the parameters gradients
+        outputs = net(inputs)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.data[0]
+        if i % 2000 == 1999:
+            print('[%d, %5d] loss: %.3f' %
+                  (epoch + 1, i + 1, running_loss / 2000))
+            running_loss = 0.0
+
+print("Training done.")
