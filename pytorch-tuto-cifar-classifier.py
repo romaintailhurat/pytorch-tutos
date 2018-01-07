@@ -2,12 +2,12 @@
 http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
 """
 import torch
-import torchvision
-import torchvision.transforms as transforms
 from torch.autograd import Variable
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torchvision
+import torchvision.transforms as transforms
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -54,6 +54,9 @@ def show_image():
 
 # -- Creating the NN
 class Net(nn.Module):
+    """
+    The neural network
+    """
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(3, 6, 5)
@@ -95,3 +98,29 @@ for epoch in range(EPOCHS):
             running_loss = 0.0
 
 print("Training done.")
+
+# -- Testing the net
+dataiter = iter(testloader)
+images, labels = dataiter.next()
+
+# print images
+imshow(torchvision.utils.make_grid(images))
+print('GroundTruth: ', ' '.join('%5s' % classes[labels[j]] for j in range(4)))
+inference_outs = net(Variable(images))
+_, predicted = torch.max(inference_outs.data, 1)
+print('Predicted: ', ' '.join('%5s' % classes[predicted[j]]
+                              for j in range(4)))
+
+# Testing on the whole dataset
+correct = 0
+total = 0
+for data in testloader:
+    images, labels = data
+    outputs = net(Variable(images))
+    _, predicted = torch.max(outputs.data, 1)
+    total += labels.size(0)
+    correct += (predicted == labels).sum()
+
+print('Accuracy of the network on the 10000 test images: %d %%' % (
+    100 * correct / total))
+
